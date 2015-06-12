@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Three.js Testing</title>
+    <script src="three.js"></script>
+    <style type="text/css">
+      div#canvas-frame{
+        border: none;
+        cursor: pointer;
+        width: 600px;
+        height: 600px;
+        background-color: #EEEEEE;
+      }
+    </style>
+    <script>
+      var renderer;
+      function initThree() {
+        width = document.getElementById('canvas-frame').clientWidth;
+        height = document.getElementById('canvas-frame').clientHeight;
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize(width, height );
+        document.getElementById('canvas-frame').appendChild(renderer.domElement);
+      }
+
+      var camera;
+      function initCamera() {
+        camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+        camera.position.x = 100;
+        camera.position.y = 20;
+        camera.position.z = 50;
+        camera.up.x = 0;
+        camera.up.y = 0;
+        camera.up.z = 1;
+        camera.lookAt({x: 0, y: 0, z: 0});
+      }
+      var scene;
+      function initScene() {
+        scene = new THREE.Scene();
+      }
+      var light;
+      function initLight() {
+        light = new THREE.DirectionalLight(0xFFFFFF, 1.0, 0);
+        light.position.set(camera.position.x, camera.position.y, camera.position.z);
+        scene.add(light);
+      }
+      var cube;
+      var voxel_size = 5;
+      function initObject(voxel_size, x, y, z, color) {
+        cube = new THREE.Mesh(
+             new THREE.CubeGeometry(voxel_size, voxel_size, voxel_size),
+             new THREE.MeshLambertMaterial({color: color/*, wireframe: true*/})
+        );
+        scene.add(cube);
+        cube.position.set(x, y, z);
+      }
+      function squareVoxel(side_num, voxel_size) {
+        for (var i = 0; i <= side_num; i++) {
+          color = 0xFF0000
+          if (i == 1) {
+            color = 0x00FF00
+          }
+          if (i == 3) {
+            color = 0x0000FF
+          }
+          for (var j = 0; j <= side_num; j++) {
+            initObject(voxel_size, 0, voxel_size * i, voxel_size * j, color)
+          }
+        }
+      }
+      var t=0;
+      function loop() {
+        t++;
+        renderer.clear();
+        camera.position.set(100 * Math.cos(t / 100), 20 * Math.sin(t / 200), 50 * Math.cos(t / 50));
+        light.position.set(camera.position.x, camera.position.y, camera.position.z);
+        camera.lookAt({x: 0, y: 0, z: 0});
+        renderer.render(scene, camera);
+        window.requestAnimationFrame(loop);
+      }
+      function threeStart() {
+        initThree();
+        initCamera();
+        initScene();
+        initLight();
+        squareVoxel(5, voxel_size);
+        renderer.clear();
+        renderer.render(scene, camera);
+        loop();
+      }
+    </script>
+  </head>
+
+  <body onload="threeStart();">
+    <div id="canvas-frame"></div>
+  </body>
+</html>
